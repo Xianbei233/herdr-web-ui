@@ -17,6 +17,14 @@ describe("notification pane delivery", () => {
     expect(selected).toEqual([{ machine_id: "remote&pc", pane_id: "latest pane/?" }]);
   });
 
+  it("preserves the requested chat view with a pane target", () => {
+    const source = messages();
+    const selected: unknown[] = [];
+    source.subscribe((target) => selected.push(target));
+    source.send({ type: "select-pane", pane_id: "pi-pane", machine_id: "local", view: "chat" });
+    expect(selected).toEqual([{ machine_id: "local", pane_id: "pi-pane", view: "chat" }]);
+  });
+
   it("delivers directly once the app subscribes", () => {
     const source = messages();
     const selected: unknown[] = [];

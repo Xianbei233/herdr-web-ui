@@ -2,7 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-type Selection = { type: string; pane_id: string; machine_id: string };
+type Selection = { type: string; pane_id: string; machine_id: string; view?: "chat" | "terminal" };
+type SelectedPane = Omit<Selection, "view">;
 type WindowClient = { focused: boolean; postMessage: (data: Selection) => void; focus: () => Promise<void> };
 
 function deferred() {
@@ -38,8 +39,19 @@ function notifications(
 }
 
 function client(focus = async () => {}, focused = false) {
-  const selected: Selection[] = [];
-  return { focused, focus, selected, postMessage: (data: Selection) => selected.push(data) };
+  const selected: SelectedPane[] = [];
+  const views: Array<Selection["view"]> = [];
+  return {
+    focused,
+    focus,
+    selected,
+    views,
+    postMessage: (data: Selection) => {
+      const { view, ...pane } = data;
+      selected.push(pane);
+      views.push(view);
+    },
+  };
 }
 
 describe("notification clicks", () => {
@@ -82,6 +94,18 @@ describe("notification clicks", () => {
     await worker.click("pane-b", "remote");
     await worker.click(null);
     expect(worker.opened).toEqual(["/?machine=remote&pane=pane-b", "/"]);
+  });
+
+  it("opens a pane notification in the Agent chat view in existing and cold windows", async () => {
+    const existing = client();
+    const openWorker = notifications([existing]);
+    await openWorker.click("pi-pane", "local");
+    expect(existing.views).toEqual(["chat", "chat"]);
+    expect(openWorker.opened).toEqual([]);
+
+    const coldWorker = notifications([]);
+    await coldWorker.click("pi-pane", "local");
+    expect(coldWorker.opened).toEqual(["/?machine=local&pane=pi-pane&view=chat"]);
   });
 
   it("focuses a generic notification without sending an empty pane selection", async () => {
