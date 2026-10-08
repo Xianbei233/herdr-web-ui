@@ -584,8 +584,9 @@ export function App() {
     setLens({ key: lensKey, view });
   }
   // a tapped alert's lens is drawn over the pane's own, never stored: once it is gone (the pane or
-  // its lens picked by hand) the pane is back on the lens it had
-  if (notificationView !== null) view = notificationView;
+  // its lens picked by hand) the pane is back on the lens it had. A shell has no conversation to
+  // show (storedView), so its alert opens its own lens; until the snapshot says, it counts as an agent
+  if (notificationView !== null && !(notificationView === "chat" && selectedPane !== null && selectedAgent === null)) view = notificationView;
 
   const setView = useCallback(
     (next: PaneView) => {

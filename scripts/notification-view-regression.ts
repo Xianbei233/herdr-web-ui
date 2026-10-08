@@ -5,7 +5,7 @@ import { join } from "node:path";
 import type { Browser } from "playwright-core";
 import { herdrRpc, workspaceClose, workspaceCreate } from "../server/herdr/client.ts";
 
-/** A tapped pane alert shows the pane's chat once: the lens the pane remembered stays its own. */
+/** A tapped pane alert shows an agent pane's chat once: the lens the pane remembered stays its own, and a shell keeps its terminal. */
 export async function checkNotificationView(browser: Browser, origin: string): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), "herdr-web-ui-alert-view-"));
   const workspaces: string[] = [];
@@ -54,8 +54,8 @@ export async function checkNotificationView(browser: Browser, origin: string): P
     await row(agent).click();
     await shows(agent, "Live terminal");
 
-    // an open window is told by the worker
-    await row(shell).click();
+    // an open window is told by the worker; a shell has no conversation, so its alert opens the terminal
+    await tapAlert(shell);
     await shows(shell, "Live terminal");
     await tapAlert(agent);
     await shows(agent, "Chat transcript");
@@ -64,7 +64,7 @@ export async function checkNotificationView(browser: Browser, origin: string): P
     await row(agent).click();
     await shows(agent, "Live terminal");
     assert.deepEqual(errors, []);
-    console.log("PASS a tapped pane alert opens the chat once and leaves the pane its own lens");
+    console.log("PASS a tapped pane alert opens an agent's chat once, and a shell's terminal");
   } finally {
     await context.close();
     for (const workspace of workspaces) await workspaceClose(workspace).catch(() => undefined);
