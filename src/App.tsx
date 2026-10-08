@@ -580,11 +580,12 @@ export function App() {
   const notificationView = notificationViewForPane(notificationViewTarget, selectedMachineId, selectedPaneId);
   let view = lens.view;
   if (lens.key !== lensKey) {
-    if (selectedPaneId !== null) view = notificationView ?? storedView(selectedPaneId, selectedMachineId, selectedPane ? selectedAgent !== null : null, terminalAttach, settings.defaultView);
+    if (selectedPaneId !== null) view = storedView(selectedPaneId, selectedMachineId, selectedPane ? selectedAgent !== null : null, terminalAttach, settings.defaultView);
     setLens({ key: lensKey, view });
-  } else if (notificationView !== null) {
-    view = notificationView;
   }
+  // a tapped alert's lens is drawn over the pane's own, never stored: once it is gone (the pane or
+  // its lens picked by hand) the pane is back on the lens it had
+  if (notificationView !== null) view = notificationView;
 
   const setView = useCallback(
     (next: PaneView) => {
