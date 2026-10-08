@@ -1,4 +1,4 @@
-type Target = { machine_id: string; pane_id: string };
+type Target = { machine_id: string; pane_id: string; view?: "chat" | "terminal" };
 type Select = (target: Target) => void;
 type MessageSource = { addEventListener: (type: "message", listener: (event: MessageEvent) => void) => void };
 
@@ -7,9 +7,13 @@ export function notificationTargets(source?: MessageSource): (select: Select) =>
   let pending: Target | null = null;
   let consumer: Select | null = null;
   source?.addEventListener("message", (event) => {
-    const data = event.data as { type?: unknown; pane_id?: unknown; machine_id?: unknown } | null;
+    const data = event.data as { type?: unknown; pane_id?: unknown; machine_id?: unknown; view?: unknown } | null;
     if (data?.type !== "select-pane" || typeof data.pane_id !== "string") return;
-    const target = { machine_id: typeof data.machine_id === "string" ? data.machine_id : "local", pane_id: data.pane_id };
+    const target = {
+      machine_id: typeof data.machine_id === "string" ? data.machine_id : "local",
+      pane_id: data.pane_id,
+      ...(data.view === "chat" || data.view === "terminal" ? { view: data.view } : {}),
+    };
     if (consumer) consumer(target);
     else pending = target;
   });
