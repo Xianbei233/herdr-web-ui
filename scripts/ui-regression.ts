@@ -85,6 +85,33 @@ try {
     if (!localStorage.getItem("herdr-web-ui:settings")) localStorage.setItem("herdr-web-ui:settings", JSON.stringify({ language: "en" }));
     for (const id of ids) localStorage.setItem(`herdr-web-ui:view:${id}`, "chat");
   }, panes);
+
+  // A notification's one-time chat destination must not replace the pane's saved terminal view.
+  const notificationContext = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  await notificationContext.addInitScript((paneId) => {
+    localStorage.setItem("herdr-web-ui:settings", JSON.stringify({ language: "en" }));
+    localStorage.setItem(`herdr-web-ui:view:${paneId}`, "terminal");
+  }, paneA);
+  const notificationPage = await notificationContext.newPage();
+  await notificationPage.goto(`${origin}/?pane=${encodeURIComponent(paneA)}&view=chat`);
+  await notificationPage.locator(".conn-live").waitFor();
+  const activeView = notificationPage.locator('.view-switch button[aria-pressed="true"] .header-desktop-only');
+  await until(async () => (await activeView.textContent())?.trim() === "Chat", "notification chat view");
+  assert.equal(
+    await notificationPage.evaluate((id) => localStorage.getItem(`herdr-web-ui:view:${id}`), paneA),
+    "terminal",
+    "a notification must not overwrite the saved per-pane view",
+  );
+  if (process.env.UI_EVIDENCE_DIR) {
+    mkdirSync(process.env.UI_EVIDENCE_DIR, { recursive: true });
+    await notificationPage.screenshot({ path: join(process.env.UI_EVIDENCE_DIR, "notification-chat-one-shot.png") });
+  }
+  await notificationPage.goto(`${origin}/?pane=${encodeURIComponent(paneA)}`);
+  await notificationPage.locator(".conn-live").waitFor();
+  await until(async () => (await activeView.textContent())?.trim() === "Terminal", "saved terminal view after notification");
+  await notificationContext.close();
+  console.log("PASS pane notification opens chat once without replacing the saved terminal view");
+
   const page = await context.newPage();
   const workspaceGroup = (workspaceId: string) => page.locator(`.workspace-group[data-workspace="${workspaceId}"]`);
   const workspaceHeader = (workspaceId: string) => workspaceGroup(workspaceId).locator(":scope > .workspace-header");

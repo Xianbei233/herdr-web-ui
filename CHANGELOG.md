@@ -7,6 +7,9 @@ between releases do not reach them. Remote-PC runtime bundles are versioned sepa
 
 ## [Unreleased]
 
+### Fixed
+- Clicking a pane notification opens that pane's Agent chat view without changing its saved per-pane view.
+
 ## [0.4.1] - 2026-10-08
 
 ### Added
