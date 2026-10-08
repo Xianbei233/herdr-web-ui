@@ -7,8 +7,39 @@ between releases do not reach them. Remote-PC runtime bundles are versioned sepa
 
 ## [Unreleased]
 
+### Added
+- The app sends an anonymous count when it is installed and each time it is updated: the version,
+  the OS, how it was installed and a random ID, nothing about your terminals or files, and no IP
+  address is stored. A line says so the first time you open the app, and
+  **Settings → About → Anonymous usage counts** shows what is sent and turns it off;
+  `HERDR_WEB_TELEMETRY=0` or `DO_NOT_TRACK=1` turns it off on the server.
+  ([Anonymous usage counts](docs/guide.md#anonymous-usage-counts),
+  [#599](https://github.com/devswha/herdr-web-ui/pull/599))
+
+### Changed
+- **Settings → Terminal → Clipboard from a pane** is on again: vim, tmux and Claude Code copy to
+  your clipboard from a pane without a trip to Settings. It is also on for anyone 0.4.1 left off
+  without asking (it saved the switch with any other setting). Turn it off if a pane runs output
+  you do not trust.
+- A GitHub release opens with its patch notes, short lines under New features, Improvements and
+  Bug fixes as an install shows them, with the full changelog folded underneath.
+
 ### Fixed
-- Clicking a pane notification opens that pane's Agent chat view without changing its saved per-pane view. ([#605](https://github.com/devswha/herdr-web-ui/pull/605) by @Xianbei233)
+- macOS Safari direct terminal input preserves Korean syllables when the input method
+  replaces text without emitting composition events, including after switching from English.
+  ([#524](https://github.com/devswha/herdr-web-ui/pull/524) by @suho-han)
+- **Quiet opened finishes** starts quiet the first time it is turned on in a browser even when a
+  damaged record of opened finishes is left in that browser's storage; before, such a record made
+  every finished agent keep its dot. In the demo, an agent started after every workspace was closed
+  carries the counter that Activity order and Quiet opened finishes read.
+  ([#603](https://github.com/devswha/herdr-web-ui/pull/603) by @phirschybar)
+- A message starting with `/` that Claude Code does not know no longer just vanishes from the
+  chat: Claude Code's own answer ("Unknown command: /…", and the arguments it dropped) shows as a
+  notice, as a usage limit reached or reset does. Claude Code 2.1.29x records these as
+  informational entries, which the chat left out.
+  ([#600](https://github.com/devswha/herdr-web-ui/pull/600) by @Yoonwoo-Ha)
+- Clicking a pane notification opens that pane's Agent chat view without changing its saved
+  per-pane view. ([#605](https://github.com/devswha/herdr-web-ui/pull/605) by @Xianbei233)
 
 ## [0.4.1] - 2026-10-08
 
