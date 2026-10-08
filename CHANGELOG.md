@@ -38,8 +38,10 @@ between releases do not reach them. Remote-PC runtime bundles are versioned sepa
   notice, as a usage limit reached or reset does. Claude Code 2.1.29x records these as
   informational entries, which the chat left out.
   ([#600](https://github.com/devswha/herdr-web-ui/pull/600) by @Yoonwoo-Ha)
-- Clicking a pane notification opens that pane's Agent chat view without changing its saved
-  per-pane view. ([#605](https://github.com/devswha/herdr-web-ui/pull/605) by @Xianbei233)
+- Clicking an agent's notification opens that pane on its chat, where the answer or the question
+  is, also when the pane is kept on the terminal. The pane's own view is not changed: pick the
+  pane or a view yourself and it is back. A shell's notification opens its terminal as before.
+  ([#605](https://github.com/devswha/herdr-web-ui/pull/605) by @Xianbei233)
 
 ## [0.4.1] - 2026-10-08
 
